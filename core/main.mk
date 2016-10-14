@@ -153,19 +153,11 @@ endif
 java_version_str := $(shell unset _JAVA_OPTIONS && java -version 2>&1)
 javac_version_str := $(shell unset _JAVA_OPTIONS && javac -version 2>&1)
 
-# Check for the correct version of java, should be 1.7 by
-# default, and 1.8 if EXPERIMENTAL_USE_JAVA8 is set
-ifneq ($(EXPERIMENTAL_USE_JAVA8),)
-required_version := "1.8.x"
-required_javac_version := "1.8"
-java_version := $(shell echo '$(java_version_str)' | grep 'openjdk .*[ "]1\.8[\. "$$]')
-javac_version := $(shell echo '$(javac_version_str)' | grep '[ "]1\.8[\. "$$]')
-else # default
-required_version := "1.7.x"
-required_javac_version := "1.7"
-java_version := $(shell echo '$(java_version_str)' | grep '^java .*[ "]1\.7[\. "$$]')
-javac_version := $(shell echo '$(javac_version_str)' | grep '[ "]1\.7[\. "$$]')
-endif # if EXPERIMENTAL_USE_JAVA8
+# Check for the correct version of java, should be 1.7 or 1.8
+required_version := "1.7.x or 1.8.x"
+required_javac_version := "1.7 or 1.8"
+java_version := $(shell echo '$(java_version_str)' | grep '[ "]1\.[78][\. "$$]')
+javac_version := $(shell echo '$(javac_version_str)' | grep '[ "]1\.[78][\. "$$]')
 
 ifeq ($(strip $(java_version)),)
 $(info ************************************************************)
@@ -180,41 +172,6 @@ $(info $(space)$(space)$(space)$(space)https://source.android.com/source/initial
 $(info ************************************************************)
 $(error stop)
 endif
-
-# Check for the current JDK.
-#
-# For Java 1.7, we require OpenJDK on linux and Oracle JDK on Mac OS.
-requires_openjdk := false
-ifeq ($(DISABLE_OPENJDK_CHECK),)
-ifeq ($(HOST_OS), linux)
-requires_openjdk := true
-endif
-endif
-
-
-# Check for the current jdk
-ifeq ($(requires_openjdk), true)
-# The user asked for java7 openjdk, so check that the host
-# java version is really openjdk
-ifeq ($(shell echo '$(java_version_str)' | grep -i openjdk),)
-$(info ************************************************************)
-$(info You asked for an OpenJDK 7 build but your version is)
-$(info $(java_version_str).)
-$(info ************************************************************)
-$(error stop)
-endif # java version is not OpenJdk
-else # if requires_openjdk
-ifneq ($(shell echo '$(java_version_str)' | grep -i openjdk),)
-$(info ************************************************************)
-$(info You are attempting to build with an unsupported JDK.)
-$(info $(space))
-$(info You use OpenJDK but only Sun/Oracle JDK is supported.)
-$(info Please follow the machine setup instructions at)
-$(info $(space)$(space)$(space)$(space)https://source.android.com/source/download.html)
-$(info ************************************************************)
-$(error stop)
-endif # java version is not Sun Oracle JDK
-endif # if requires_openjdk
 
 # Check for the correct version of javac
 ifeq ($(strip $(javac_version)),)
@@ -461,7 +418,7 @@ ifeq ($(findstring Linux,$(UNAME)),)
 subdirs += build/tools/acp
 endif
 
-else	# !SDK_ONLY
+else    # !SDK_ONLY
 #
 # Typical build; include any Android.mk files we can find.
 #
@@ -469,7 +426,7 @@ subdirs := $(TOP)
 
 FULL_BUILD := true
 
-endif	# !SDK_ONLY
+endif   # !SDK_ONLY
 
 # Before we go and include all of the module makefiles, stash away
 # the PRODUCT_* values so that later we can verify they are not modified.
@@ -502,8 +459,8 @@ NOTICE-TARGET-%: ;
 # A helper goal printing out install paths
 .PHONY: GET-INSTALL-PATH
 GET-INSTALL-PATH:
-	@$(foreach m, $(ALL_MODULES), $(if $(ALL_MODULES.$(m).INSTALLED), \
-		echo 'INSTALL-PATH: $(m) $(ALL_MODULES.$(m).INSTALLED)';))
+    @$(foreach m, $(ALL_MODULES), $(if $(ALL_MODULES.$(m).INSTALLED), \
+        echo 'INSTALL-PATH: $(m) $(ALL_MODULES.$(m).INSTALLED)';))
 
 else # ONE_SHOT_MAKEFILE
 
@@ -515,7 +472,7 @@ ifneq ($(dont_bother),true)
 # Can't use first-makefiles-under here because
 # --mindepth=2 makes the prunes not work.
 subdir_makefiles := \
-	$(shell build/tools/findleaves.py $(FIND_LEAVES_EXCLUDES) $(subdirs) Android.mk)
+    $(shell build/tools/findleaves.py $(FIND_LEAVES_EXCLUDES) $(subdirs) Android.mk)
 
 $(foreach mk, $(subdir_makefiles), $(eval include $(mk)))
 
@@ -558,8 +515,8 @@ endif
 known_custom_modules := $(filter $(ALL_MODULES),$(CUSTOM_MODULES))
 unknown_custom_modules := $(filter-out $(ALL_MODULES),$(CUSTOM_MODULES))
 CUSTOM_MODULES := \
-	$(call module-installed-files,$(known_custom_modules)) \
-	$(unknown_custom_modules)
+    $(call module-installed-files,$(known_custom_modules)) \
+    $(unknown_custom_modules)
 
 # -------------------------------------------------------------------
 # Define dependencies for modules that require other modules.
@@ -894,13 +851,13 @@ endif
 # Build files and then package it into the rom formats
 .PHONY: droidcore
 droidcore: files \
-	systemimage \
-	$(INSTALLED_BOOTIMAGE_TARGET) \
-	$(INSTALLED_RECOVERYIMAGE_TARGET) \
-	$(INSTALLED_USERDATAIMAGE_TARGET) \
-	$(INSTALLED_CACHEIMAGE_TARGET) \
-	$(INSTALLED_VENDORIMAGE_TARGET) \
-	$(INSTALLED_FILES_FILE)
+    systemimage \
+    $(INSTALLED_BOOTIMAGE_TARGET) \
+    $(INSTALLED_RECOVERYIMAGE_TARGET) \
+    $(INSTALLED_USERDATAIMAGE_TARGET) \
+    $(INSTALLED_CACHEIMAGE_TARGET) \
+    $(INSTALLED_VENDORIMAGE_TARGET) \
+    $(INSTALLED_FILES_FILE)
 
 # dist_files only for putting your library into the dist directory with a full build.
 .PHONY: dist_files
@@ -1038,9 +995,9 @@ $(foreach module,$(sample_MODULES),$(eval $(call \
 sample_ADDITIONAL_INSTALLED := \
         $(filter-out $(modules_to_install) $(modules_to_check) $(ALL_PREBUILT),$(sample_MODULES))
 samplecode: $(sample_APKS_COLLECTION)
-	@echo -e ${CL_GRN}"Collect sample code apks:"${CL_RST}" $^"
-	# remove apks that are not intended to be installed.
-	rm -f $(sample_ADDITIONAL_INSTALLED)
+    @echo -e ${CL_GRN}"Collect sample code apks:"${CL_RST}" $^"
+    # remove apks that are not intended to be installed.
+    rm -f $(sample_ADDITIONAL_INSTALLED)
 endif  # samplecode in $(MAKECMDGOALS)
 
 .PHONY: findbugs
@@ -1048,8 +1005,8 @@ findbugs: $(INTERNAL_FINDBUGS_HTML_TARGET) $(INTERNAL_FINDBUGS_XML_TARGET)
 
 .PHONY: clean
 clean:
-	@rm -rf $(OUT_DIR)/*
-	@echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}
+    @rm -rf $(OUT_DIR)/*
+    @echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}
 
 .PHONY: clobber
 clobber: clean
@@ -1059,14 +1016,14 @@ clobber: clean
 #xxx scrape this from ALL_MODULE_NAME_TAGS
 .PHONY: modules
 modules:
-	@echo -e ${CL_GRN}"Available sub-modules:"${CL_RST}
-	@echo "$(call module-names-for-tag-list,$(ALL_MODULE_TAGS))" | \
-	      tr -s ' ' '\n' | sort -u | $(COLUMN)
+    @echo -e ${CL_GRN}"Available sub-modules:"${CL_RST}
+    @echo "$(call module-names-for-tag-list,$(ALL_MODULE_TAGS))" | \
+          tr -s ' ' '\n' | sort -u | $(COLUMN)
 
 .PHONY: showcommands
 showcommands:
-	@echo >/dev/null
+    @echo >/dev/null
 
 .PHONY: nothing
 nothing:
-	@echo Successfully read the makefiles.
+    @echo Successfully read the makefiles.
