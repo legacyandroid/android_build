@@ -418,7 +418,7 @@ ifeq ($(findstring Linux,$(UNAME)),)
 subdirs += build/tools/acp
 endif
 
-else    # !SDK_ONLY
+else	# !SDK_ONLY
 #
 # Typical build; include any Android.mk files we can find.
 #
@@ -426,7 +426,7 @@ subdirs := $(TOP)
 
 FULL_BUILD := true
 
-endif   # !SDK_ONLY
+endif	# !SDK_ONLY
 
 # Before we go and include all of the module makefiles, stash away
 # the PRODUCT_* values so that later we can verify they are not modified.
@@ -459,8 +459,8 @@ NOTICE-TARGET-%: ;
 # A helper goal printing out install paths
 .PHONY: GET-INSTALL-PATH
 GET-INSTALL-PATH:
-    @$(foreach m, $(ALL_MODULES), $(if $(ALL_MODULES.$(m).INSTALLED), \
-        echo 'INSTALL-PATH: $(m) $(ALL_MODULES.$(m).INSTALLED)';))
+	@$(foreach m, $(ALL_MODULES), $(if $(ALL_MODULES.$(m).INSTALLED), \
+		echo 'INSTALL-PATH: $(m) $(ALL_MODULES.$(m).INSTALLED)';))
 
 else # ONE_SHOT_MAKEFILE
 
@@ -472,7 +472,7 @@ ifneq ($(dont_bother),true)
 # Can't use first-makefiles-under here because
 # --mindepth=2 makes the prunes not work.
 subdir_makefiles := \
-    $(shell build/tools/findleaves.py $(FIND_LEAVES_EXCLUDES) $(subdirs) Android.mk)
+	$(shell build/tools/findleaves.py $(FIND_LEAVES_EXCLUDES) $(subdirs) Android.mk)
 
 $(foreach mk, $(subdir_makefiles), $(eval include $(mk)))
 
@@ -515,8 +515,8 @@ endif
 known_custom_modules := $(filter $(ALL_MODULES),$(CUSTOM_MODULES))
 unknown_custom_modules := $(filter-out $(ALL_MODULES),$(CUSTOM_MODULES))
 CUSTOM_MODULES := \
-    $(call module-installed-files,$(known_custom_modules)) \
-    $(unknown_custom_modules)
+	$(call module-installed-files,$(known_custom_modules)) \
+	$(unknown_custom_modules)
 
 # -------------------------------------------------------------------
 # Define dependencies for modules that require other modules.
@@ -851,13 +851,13 @@ endif
 # Build files and then package it into the rom formats
 .PHONY: droidcore
 droidcore: files \
-    systemimage \
-    $(INSTALLED_BOOTIMAGE_TARGET) \
-    $(INSTALLED_RECOVERYIMAGE_TARGET) \
-    $(INSTALLED_USERDATAIMAGE_TARGET) \
-    $(INSTALLED_CACHEIMAGE_TARGET) \
-    $(INSTALLED_VENDORIMAGE_TARGET) \
-    $(INSTALLED_FILES_FILE)
+	systemimage \
+	$(INSTALLED_BOOTIMAGE_TARGET) \
+	$(INSTALLED_RECOVERYIMAGE_TARGET) \
+	$(INSTALLED_USERDATAIMAGE_TARGET) \
+	$(INSTALLED_CACHEIMAGE_TARGET) \
+	$(INSTALLED_VENDORIMAGE_TARGET) \
+	$(INSTALLED_FILES_FILE)
 
 # dist_files only for putting your library into the dist directory with a full build.
 .PHONY: dist_files
@@ -995,9 +995,9 @@ $(foreach module,$(sample_MODULES),$(eval $(call \
 sample_ADDITIONAL_INSTALLED := \
         $(filter-out $(modules_to_install) $(modules_to_check) $(ALL_PREBUILT),$(sample_MODULES))
 samplecode: $(sample_APKS_COLLECTION)
-    @echo -e ${CL_GRN}"Collect sample code apks:"${CL_RST}" $^"
-    # remove apks that are not intended to be installed.
-    rm -f $(sample_ADDITIONAL_INSTALLED)
+	@echo -e ${CL_GRN}"Collect sample code apks:"${CL_RST}" $^"
+	# remove apks that are not intended to be installed.
+	rm -f $(sample_ADDITIONAL_INSTALLED)
 endif  # samplecode in $(MAKECMDGOALS)
 
 .PHONY: findbugs
@@ -1005,8 +1005,8 @@ findbugs: $(INTERNAL_FINDBUGS_HTML_TARGET) $(INTERNAL_FINDBUGS_XML_TARGET)
 
 .PHONY: clean
 clean:
-    @rm -rf $(OUT_DIR)/*
-    @echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}
+	@rm -rf $(OUT_DIR)/*
+	@echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}
 
 .PHONY: clobber
 clobber: clean
@@ -1016,14 +1016,14 @@ clobber: clean
 #xxx scrape this from ALL_MODULE_NAME_TAGS
 .PHONY: modules
 modules:
-    @echo -e ${CL_GRN}"Available sub-modules:"${CL_RST}
-    @echo "$(call module-names-for-tag-list,$(ALL_MODULE_TAGS))" | \
-          tr -s ' ' '\n' | sort -u | $(COLUMN)
+	@echo -e ${CL_GRN}"Available sub-modules:"${CL_RST}
+	@echo "$(call module-names-for-tag-list,$(ALL_MODULE_TAGS))" | \
+	      tr -s ' ' '\n' | sort -u | $(COLUMN)
 
 .PHONY: showcommands
 showcommands:
-    @echo >/dev/null
+	@echo >/dev/null
 
 .PHONY: nothing
 nothing:
-    @echo Successfully read the makefiles.
+	@echo Successfully read the makefiles.
